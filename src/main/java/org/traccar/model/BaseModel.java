@@ -19,6 +19,7 @@ package org.traccar.model;
 public class BaseModel {
 
     private long id;
+    private String uniqueId;
 
     public final long getId() {
         return id;
@@ -26,6 +27,10 @@ public class BaseModel {
 
     public final void setId(long id) {
         this.id = id;
+    }
+
+    public String getUniqueId() {
+        return uniqueId;
     }
 
 }

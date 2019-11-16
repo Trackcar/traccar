@@ -10,3 +10,7 @@ nbactions.xml
 .gradle
 out
 build
+.history/
+.vscode/
+nbactions-release-profile.xml
+bin/

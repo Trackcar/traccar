@@ -31,6 +31,7 @@ import org.traccar.database.BaseObjectManager;
 import org.traccar.database.ExtendedObjectManager;
 import org.traccar.database.ManagableObjects;
 import org.traccar.database.SimpleObjectManager;
+import org.traccar.database.DeviceManager;
 import org.traccar.helper.LogAction;
 import org.traccar.model.BaseModel;
 import org.traccar.model.Calendar;
@@ -89,11 +90,27 @@ public abstract class BaseObjectResource<T extends BaseModel> extends BaseResour
         }
 
         BaseObjectManager<T> manager = Context.getManager(baseClass);
-        manager.addItem(entity);
+        // Allow many user link to same device
+        try {
+            manager.addItem(entity);
+        } catch (SQLException e) {
+            //
+        }
+
         LogAction.create(getUserId(), entity);
 
-        Context.getDataManager().linkObject(User.class, getUserId(), baseClass, entity.getId(), true);
-        LogAction.link(getUserId(), User.class, getUserId(), baseClass, entity.getId());
+        long entityId;
+        if (entity.getId() < 1) {
+            DeviceManager deviceManager = Context.getDeviceManager();
+            String uniqueId = entity.getUniqueId();
+            Device device = deviceManager.getByUniqueId(uniqueId);
+            entityId = device.getId();
+        } else {
+            entityId = entity.getId();
+        }
+
+        Context.getDataManager().linkObject(User.class, getUserId(), baseClass, entityId, true);
+        LogAction.link(getUserId(), User.class, getUserId(), baseClass, entityId);
 
         if (manager instanceof SimpleObjectManager) {
             ((SimpleObjectManager<T>) manager).refreshUserItems();
